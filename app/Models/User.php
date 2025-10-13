@@ -13,5 +13,16 @@ class User extends Authenticatable
     protected $fillable = ['name','email','password'];
 
     protected $hidden = ['password','remember_token'];
+
+    public function orders()
+{
+    // Một user có nhiều đơn hàng
+    return $this->hasMany(Order::class);
+}
+         
+public function reviews() {
+    return $this->hasMany(\App\Models\Review::class);
+}
+
 }
 

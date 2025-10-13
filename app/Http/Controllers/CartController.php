@@ -4,53 +4,52 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Order;
-use App\Models\OrderItem;
-use App\Models\Product;
-use Illuminate\Support\Facades\Auth;
 
 class CartController extends Controller
 {
-    public function checkout(Request $request)
-    {
-        if (!Auth::check()) {
-            return response()->json(['error' => 'Bạn cần đăng nhập để thanh toán!'], 401);
+    public function checkout(Request $request){
+        $cart = $request->input('cart');
+        $payment = $request->input('payment_method','cod');
+        $user = auth()->user();
+
+        if(!$cart || count($cart)==0){
+            return response()->json(['error'=>'Giỏ hàng trống']);
         }
 
-        $cart = $request->cart;
-        $total = 0;
+        $total = collect($cart)->sum(fn($item)=>$item['price']*$item['quantity']);
 
-        foreach ($cart as $item) {
-            $total += $item['price'] * $item['quantity'];
-        }
-
-        // Lưu đơn hàng
         $order = Order::create([
-            'user_id' => Auth::id(),
-            'total_price' => $total,
-            'status' => 'completed'
+            'user_id'=>$user->id,
+            'total'=>$total,
+            'status'=>'pending',
+            'payment_method'=>$payment,
         ]);
 
-        // Lưu chi tiết sản phẩm
-        foreach ($cart as $item) {
-            OrderItem::create([
-                'order_id' => $order->id,
-                'product_id' => $item['id'],
-                'quantity' => $item['quantity'],
-                'price' => $item['price']
+        foreach($cart as $item){
+            $order->items()->create([
+                'product_id'=>$item['id'],
+                'quantity'=>$item['quantity'],
+                'price'=>$item['price'],
             ]);
         }
 
-        return response()->json(['success' => true, 'message' => 'Đặt hàng thành công!']);
+        // Notification
+        $user->notify(new \App\Notifications\OrderPlaced($order));
+
+        return response()->json(['success'=>true,'order_id'=>$order->id]);
     }
 
-    public function orderHistory()
+    public function showCheckout()
     {
-        $orders = Order::with('items.product')
-            ->where('user_id', Auth::id())
-            ->orderBy('created_at', 'desc')
-            ->get();
-
-        return view('orders.history', compact('orders'));
+        $order = auth()->user()->orders()->latest()->first();
+        if (!$order) {
+            return redirect()->route('home')->with('error', 'Bạn chưa có đơn hàng nào.');
+        }
+        return view('checkout', compact('order'));
     }
 }
+
+
+
+
 
