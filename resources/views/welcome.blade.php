@@ -9,18 +9,19 @@
 </head>
 <body class="bg-gray-100 font-sans">
 
-<!-- Header -->
-<header class="bg-green-700 shadow relative">
+<!-- Header cố định -->
+<header class="bg-green-700 shadow fixed top-0 left-0 w-full z-50">
     <div class="container mx-auto px-6 py-4 flex justify-between items-center">
         <h1 class="text-2xl font-bold text-white">🏠 Nội Thất Xanh Hưng Nguyễn</h1>
         <nav class="flex space-x-4 items-center">
             <a href="{{ route('home') }}" class="text-white hover:text-green-200">Trang chủ</a>
             <a href="#products" class="text-white hover:text-green-200">Sản phẩm</a>
-
-            <!-- Cart button thay cho khuyến mãi -->
-            <button onclick="toggleCart()" class="bg-yellow-400 text-green-900 px-3 py-1 rounded hover:bg-yellow-500 transition">🛒 Thanh toán</button>
-
             @auth
+            <a href="{{ route('orders.history') }}" class="text-white hover:text-green-200">Lịch sử mua</a>
+            @endauth
+            <button onclick="goCheckout()" class="bg-yellow-400 text-green-900 px-3 py-1 rounded hover:bg-yellow-500 transition">Thanh toán</button>
+            @auth
+                <button onclick="openProfileModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded ml-2">Xin chào, {{ auth()->user()->name }}</button>
                 <form action="{{ route('logout') }}" method="POST" class="inline">
                     @csrf
                     <button type="submit" class="bg-red-500 hover:bg-red-600 px-3 py-1 rounded text-white">Đăng xuất</button>
@@ -33,17 +34,23 @@
     </div>
 </header>
 
-<!-- Section giới thiệu -->
-<section class="bg-green-100 py-16 text-center">
-    <h2 class="text-4xl font-bold text-green-800">Khám phá không gian sống hiện đại</h2>
-    <p class="text-green-700 mt-4">Sản phẩm nội thất chất lượng cao, thiết kế tinh tế.</p>
+<div class="mt-24"></div> <!-- để header cố định không che -->
+
+<!-- Hero -->
+<section class="relative h-[400px] md:h-[500px] overflow-hidden">
+    <video class="w-full h-full object-cover" autoplay muted loop>
+        <source src="{{ asset('videos/videomodau.mp4') }}" type="video/mp4">
+    </video>
+    <div class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+        <h2 class="text-4xl md:text-5xl font-bold text-white text-center">Khám phá không gian sống hiện đại</h2>
+    </div>
 </section>
 
 <!-- Sản phẩm nổi bật -->
 <section id="products" class="py-20 bg-white">
     <div class="container mx-auto px-6">
         <h2 class="text-3xl font-bold text-green-900 mb-8 text-center">Sản phẩm nổi bật</h2>
-        <div class="swiper mySwiper">
+        <div class="swiper mySwiperProducts">
             <div class="swiper-wrapper">
                 @foreach($products as $p)
                 <div class="swiper-slide p-4">
@@ -76,17 +83,25 @@
     </div>
 </section>
 
-<!-- Cart UI (fixed right) -->
+<!-- Cart -->
 <div id="cart-container" class="fixed top-24 right-5 bg-white shadow-lg rounded-lg p-4 w-80 border hidden z-50">
     <h4 class="font-bold mb-3">🛒 Giỏ hàng</h4>
     <div id="cart-items" class="max-h-48 overflow-y-auto"></div>
-    <div class="mt-3 flex justify-between items-center">
-        <div class="font-bold text-red-600" id="cart-total">0đ</div>
-        <button onclick="checkout()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded">Thanh toán</button>
+    <div class="mt-3 flex flex-col gap-2">
+        <div class="flex justify-between items-center">
+            <div class="font-bold text-red-600" id="cart-total">0đ</div>
+        </div>
+        <select id="payment-method" class="w-full border px-3 py-1 rounded">
+            <option value="cod">COD</option>
+            <option value="bank">Chuyển khoản</option>
+            <option value="momo">Ví Momo</option>
+            <option value="paypal">PayPal</option>
+        </select>
+        <button onclick="goCheckout()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded">Thanh toán</button>
     </div>
 </div>
 
-<!-- Product Modal -->
+<!-- Product modal -->
 <div id="productModal" class="fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
     <div class="bg-white rounded-lg shadow-lg p-6 w-96">
         <img id="modal-img" class="w-full h-48 object-cover rounded" alt="image">
@@ -98,18 +113,59 @@
     </div>
 </div>
 
+<!-- Profile modal -->
+@auth
+<div id="profileModal" class="fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-lg shadow-lg p-6 w-96">
+        <h3 class="text-xl font-bold mb-4 text-green-900">Cập nhật hồ sơ</h3>
+        <form id="profileForm" class="space-y-3">
+            @csrf
+            <div>
+                <label class="block font-semibold">Họ tên</label>
+                <input type="text" name="name" value="{{ Auth::user()->name }}" class="w-full border px-3 py-2 rounded">
+            </div>
+            <div>
+                <label class="block font-semibold">Email</label>
+                <input type="email" name="email" value="{{ Auth::user()->email }}" class="w-full border px-3 py-2 rounded">
+            </div>
+            <div>
+                <label class="block font-semibold">Số điện thoại</label>
+                <input type="text" name="phone" value="{{ Auth::user()->phone ?? '' }}" class="w-full border px-3 py-2 rounded">
+            </div>
+            <div>
+                <label class="block font-semibold">Địa chỉ</label>
+                <textarea name="address" class="w-full border px-3 py-2 rounded">{{ Auth::user()->address ?? '' }}</textarea>
+            </div>
+            <div>
+                <label class="block font-semibold">Mật khẩu mới (nếu muốn)</label>
+                <input type="password" name="password" class="w-full border px-3 py-2 rounded">
+            </div>
+            <div>
+                <label class="block font-semibold">Xác nhận mật khẩu</label>
+                <input type="password" name="password_confirmation" class="w-full border px-3 py-2 rounded">
+            </div>
+            <div class="flex justify-end gap-2">
+                <button type="button" onclick="closeProfileModal()" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded">Đóng</button>
+                <button type="submit" class="bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded">Lưu</button>
+            </div>
+        </form>
+    </div>
+</div>
+@endauth
+
+<!-- Notification -->
+<div id="notify" class="fixed top-6 right-6 bg-green-600 text-white px-4 py-2 rounded shadow-lg opacity-0 transform translate-x-20 transition-all duration-300 z-50"></div>
+
 <!-- Footer -->
 <footer class="bg-green-700 text-white mt-16">
     <div class="container mx-auto px-6 py-10 grid md:grid-cols-3 gap-8">
-        <!-- Thông tin liên hệ -->
         <div>
             <h3 class="text-xl font-bold mb-4">Liên hệ</h3>
-            <p>🏠 Địa chỉ: 123 Đường Nội Thất, TP.HCM</p>
-            <p>📞 Điện thoại: 0123 456 789</p>
+            <p>🏠 Địa chỉ : Gần Đại Học Phenikaa, Hà Đông, Hà Nội</p>
+            <p>📞 Điện thoại: 0965 XXX XXX</p>
             <p>✉️ Email: info@noithatxanh.com</p>
+            <iframe class="mt-3 w-full h-32 rounded" src="https://www.google.com/maps/embed?pb=!1m18..."></iframe>
         </div>
-
-        <!-- Liên hệ nhanh -->
         <div>
             <h3 class="text-xl font-bold mb-4">Gửi liên hệ</h3>
             <form action="{{ route('contact.submit') }}" method="POST" class="space-y-3">
@@ -120,59 +176,124 @@
                 <button type="submit" class="bg-yellow-400 hover:bg-yellow-500 px-4 py-2 rounded text-green-900 font-bold">Gửi</button>
             </form>
         </div>
-
-        <!-- Mạng xã hội -->
         <div>
             <h3 class="text-xl font-bold mb-4">Theo dõi chúng tôi</h3>
             <div class="flex mt-4 space-x-3">
-                <a href="https://facebook.com" target="_blank" class="hover:text-blue-500" title="Facebook">
-                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M22 12a10 10 0 1 0-11.5 9.9v-7h-2v-3h2v-2c0-2 1.2-3 3-3h2v3h-1c-1 0-1 .5-1 1v1h2l-1 3h-1v7A10 10 0 0 0 22 12z"/></svg>
-                </a>
-                <a href="https://zalo.me" target="_blank" class="hover:text-blue-400" title="Zalo">
-                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.372 0 0 5.373 0 12c0 6.628 5.372 12 12 12s12-5.372 12-12c0-6.627-5.372-12-12-12zm1.14 17h-2.28l-.86-2h-2.5v-1.5h2.56l.54-1.5h-2.1V11h2.66l.86-2h1.74l-1.12 2h1.9v1.5h-2.24l-.54 1.5h2.06V15h-1.86l-1.02 2z"/></svg>
-                </a>
-                <a href="https://www.tiktok.com" target="_blank" class="hover:text-pink-500" title="TikTok">
-                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0v9a3 3 0 1 0 3-3h3a6 6 0 1 1-6 6V0z"/></svg>
-                </a>
-                <a href="https://www.instagram.com" target="_blank" class="hover:text-pink-400" title="Instagram">
-                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.2c3.2 0 3.584.012 4.85.07 1.17.055 1.97.24 2.428.403.59.2 1.014.44 1.46.885.446.446.685.87.886 1.46.163.457.347 1.257.403 2.427.058 1.265.07 1.648.07 4.85s-.012 3.584-.07 4.85c-.056 1.17-.24 1.97-.403 2.428-.2.59-.44 1.014-.885 1.46-.446.446-.87.685-1.46.886-.457.163-1.257.347-2.427.403-1.265.058-1.648.07-4.85.07s-3.584-.012-4.85-.07c-1.17-.056-1.97-.24-2.428-.403-.59-.2-1.014-.44-1.46-.885-.446-.446-.685-.87-.886-1.46-.163-.457-.347-1.257-.403-2.427C2.212 15.584 2.2 15.2 2.2 12s.012-3.584.07-4.85c.056-1.17.24-1.97.403-2.428.2-.59.44-1.014.885-1.46.446-.446.87-.685 1.46-.886.457-.163 1.257-.347 2.427-.403C8.416 2.212 8.8 2.2 12 2.2zm0 1.8c-3.17 0-3.55.012-4.8.07-1.04.048-1.61.22-1.987.367-.5.2-.857.44-1.23.812-.374.374-.613.73-.813 1.23-.147.376-.32.947-.367 1.987-.058 1.25-.07 1.63-.07 4.8s.012 3.55.07 4.8c.048 1.04.22 1.61.367 1.987.2.5.44.857.813 1.23.374.374.73.613 1.23.813.376.147.947.32 1.987.367 1.25.058 1.63.07 4.8.07s3.55-.012 4.8-.07c1.04-.048 1.61-.22 1.987-.367.5-.2.857-.44 1.23-.813.374-.374.613-.73.813-1.23.147-.376.32-.947.367-1.987.058-1.25.07-1.63.07-4.8s-.012-3.55-.07-4.8c-.048-1.04-.22-1.61-.367-1.987-.2-.5-.44-.857-.813-1.23-.374-.374-.73-.613-1.23-.813-.376-.147-.947-.32-1.987-.367-1.25-.058-1.63-.07-4.8-.07zm0 3a6 6 0 1 1 0 12 6 6 0 0 1 0-12zm0 1.8a4.2 4.2 0 1 0 0 8.4 4.2 4.2 0 0 0 0-8.4zm5.4-.9a1.2 1.2 0 1 1 0 2.4 1.2 1.2 0 0 1 0-2.4z"/></svg>
-                </a>
+                <a href="https://facebook.com" target="_blank" class="hover:text-blue-500">FB</a>
+                <a href="https://zalo.me" target="_blank" class="hover:text-blue-400">Zalo</a>
+                <a href="https://www.tiktok.com" target="_blank" class="hover:text-pink-500">TikTok</a>
+                <a href="https://www.instagram.com" target="_blank" class="hover:text-pink-400">IG</a>
             </div>
         </div>
     </div>
     <div class="text-center text-gray-200 mt-6">&copy; 2025 Nội Thất Xanh. Bản quyền thuộc Hưng Nguyễn.</div>
 </footer>
 
+<!-- ✅ Nút mở AI -->
+<button onclick="toggleChat()" 
+    class="fixed bottom-4 right-4 w-14 h-14 rounded-full bg-green-700 hover:bg-green-800 text-white flex items-center justify-center shadow-lg z-50">
+    💬
+</button>
+
+<!-- ✅ Chat AI kiểu đối thoại -->
+<div id="chatbox" class="fixed bottom-20 right-4 w-80 bg-white border rounded-lg shadow-lg z-50 hidden flex flex-col">
+    <div class="bg-green-700 text-white px-4 py-2 flex justify-between items-center rounded-t-lg">
+        <span>🤖 AI Tư vấn sản phẩm</span>
+        <button onclick="toggleChat()" class="text-white font-bold">✖</button>
+    </div>
+    <div id="messages" class="h-64 overflow-y-auto p-3 text-sm flex flex-col gap-2"></div>
+    <div class="flex border-t">
+        <input id="chat-input" type="text" placeholder="Hỏi về sản phẩm..." class="flex-1 px-2 py-1 text-sm focus:outline-none">
+        <button id="send-btn" class="bg-green-600 hover:bg-green-700 text-white px-3">Gửi</button>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script>
-    // Swiper init
-    var swiper = new Swiper(".mySwiper", {
-        slidesPerView: 1,
-        spaceBetween: 15,
-        loop: true,
-        autoplay: { delay: 3000, disableOnInteraction: false },
-        pagination: { el: ".swiper-pagination", clickable: true },
-        navigation: { nextEl: ".swiper-button-next", prevEl: ".swiper-button-prev" },
-        breakpoints: { 640: { slidesPerView: 2 }, 1024: { slidesPerView: 3 } }
+// Swiper
+new Swiper(".mySwiperProducts",{slidesPerView:1,spaceBetween:15,loop:true,autoplay:{delay:3000},pagination:{el:".swiper-pagination",clickable:true},navigation:{nextEl:".swiper-button-next",prevEl:".swiper-button-prev"},breakpoints:{640:{slidesPerView:2},1024:{slidesPerView:3}}});
+
+// Cart functions
+function getCart(){return JSON.parse(localStorage.getItem('cart')||'[]');}
+function saveCart(cart){localStorage.setItem('cart',JSON.stringify(cart)); renderCart();}
+function renderCart(){let cart=getCart();let c=document.getElementById('cart-items');if(!c)return;if(cart.length===0){c.innerHTML='<p class="text-gray-500">Giỏ hàng trống</p>';document.getElementById('cart-total').innerText='0đ';return;}let html='';let total=0;cart.forEach((it,idx)=>{total+=it.price*it.quantity;html+=`<div class="flex justify-between mb-2"><div><div class="font-semibold">${it.name}</div><div class="text-sm">SL: ${it.quantity}</div></div><div><div class="font-bold text-red-600">${it.price.toLocaleString()}đ</div><div><button onclick="changeQuantity(${idx},-1)" class="px-2 bg-gray-200">-</button><button onclick="changeQuantity(${idx},1)" class="px-2 bg-gray-200">+</button></div></div></div>`});c.innerHTML=html;document.getElementById('cart-total').innerText=total.toLocaleString()+'đ';}
+function changeQuantity(i,d){let c=getCart();if(!c[i])return;c[i].quantity+=d;if(c[i].quantity<=0)c.splice(i,1);saveCart(c);}
+function toggleCart(){document.getElementById('cart-container').classList.toggle('hidden');}
+function showProductDetail(n,d,img){document.getElementById('modal-name').innerText=n;document.getElementById('modal-desc').innerText=d;document.getElementById('modal-img').src=img;document.getElementById('productModal').classList.remove('hidden');document.getElementById('productModal').classList.add('flex');}
+function closeProductModal(){document.getElementById('productModal').classList.add('hidden');}
+function openProfileModal(){document.getElementById('profileModal').classList.remove('hidden');document.getElementById('profileModal').classList.add('flex');}
+function closeProfileModal(){document.getElementById('profileModal').classList.add('hidden');}
+function showNotify(msg,type='success'){const n=document.getElementById('notify');n.innerText=msg;n.style.background=type==='success'?'#16A34A':'#DC2626';n.classList.remove('opacity-0','translate-x-20');n.classList.add('opacity-100','translate-x-0');setTimeout(()=>{n.classList.remove('opacity-100','translate-x-0');n.classList.add('opacity-0','translate-x-20');},2500);}
+function addToCart(id,name,price,img='/images/no-image.png'){let c=getCart();let it=c.find(i=>i.id===id);if(it)it.quantity++;else c.push({id,name,price,quantity:1,img});saveCart(c);showNotify(`Đã thêm "${name}" vào giỏ hàng!`);}
+function goCheckout(){window.location.href="{{ route('checkout.show') }}";}
+document.addEventListener('DOMContentLoaded', renderCart);
+
+// ✅ Chat AI kiểu đối thoại
+function toggleChat(){
+    document.getElementById('chatbox').classList.toggle('hidden');
+}
+
+function appendMessage(sender, msg){
+    let box = document.getElementById('messages');
+    let html = '';
+    if(sender==='user'){
+        html = `<div class="flex justify-end">
+                    <div class="bg-green-600 text-white px-3 py-1 rounded-lg max-w-[70%]">${msg}</div>
+                </div>`;
+    } else {
+        html = `<div class="flex justify-start">
+                    <div class="bg-gray-200 text-black px-3 py-1 rounded-lg max-w-[70%]">${msg}</div>
+                </div>`;
+    }
+    box.innerHTML += html;
+    box.scrollTop = box.scrollHeight;
+}
+
+document.getElementById('send-btn').addEventListener('click', function(){
+    let input = document.getElementById('chat-input');
+    let msg = input.value.trim();
+    if(!msg) return;
+
+    appendMessage('user', msg);
+
+    fetch("{{ route('chat.ask') }}", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-TOKEN": "{{ csrf_token() }}"
+        },
+        body: JSON.stringify({message: msg})
+    }).then(res => res.json())
+      .then(data => {
+        appendMessage('ai', data.reply);
     });
 
-    // Cart functions
-    function getCart() { return JSON.parse(localStorage.getItem('cart') || '[]'); }
-    function saveCart(cart) { localStorage.setItem('cart', JSON.stringify(cart)); renderCart(); }
-    function addToCart(id,name,price){let cart=getCart();let item=cart.find(i=>i.id===id);if(item)item.quantity++;else cart.push({id,name,price,quantity:1});saveCart(cart);alert('Đã thêm vào giỏ hàng');}
-    function renderCart(){let cart=getCart();let container=document.getElementById('cart-items');if(!container)return;if(cart.length===0){container.innerHTML='<p class="text-gray-500">Giỏ hàng trống</p>';document.getElementById('cart-total').innerText='0đ';return;}let html='';let total=0;cart.forEach((it,idx)=>{total+=it.price*it.quantity;html+=`<div class="flex justify-between items-center mb-2"><div><div class="font-semibold">${it.name}</div><div class="text-sm text-gray-600">Số lượng: ${it.quantity}</div></div><div class="text-right"><div class="font-bold text-red-600">${it.price.toLocaleString()}đ</div><div class="mt-1 flex gap-1 justify-end"><button onclick="changeQuantity(${idx}, -1)" class="px-2 bg-gray-200 rounded">-</button><button onclick="changeQuantity(${idx}, 1)" class="px-2 bg-gray-200 rounded">+</button></div></div></div>`;});container.innerHTML=html;document.getElementById('cart-total').innerText=total.toLocaleString()+'đ';}
-    function changeQuantity(index,delta){let cart=getCart();if(!cart[index])return;cart[index].quantity+=delta;if(cart[index].quantity<=0)cart.splice(index,1);saveCart(cart);}
-    function checkout(){let cart=getCart();if(cart.length===0){alert('Giỏ hàng trống');return;}fetch("{{ route('checkout') }}",{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':'{{ csrf_token() }}'},body:JSON.stringify({cart})}).then(res=>res.json()).then(data=>{if(data.success){alert('Đặt hàng thành công (Mã: '+data.order_id+')');localStorage.removeItem('cart');renderCart();}else{alert(data.error||'Có lỗi xảy ra');}}).catch(e=>{console.error(e);alert('Lỗi kết nối');});}
+    input.value = "";
+});
 
-    function toggleCart(){let c=document.getElementById('cart-container');c.classList.toggle('hidden');}
-
-    // Product Modal
-    function showProductDetail(name,desc,img){document.getElementById('modal-name').innerText=name;document.getElementById('modal-desc').innerText=desc;document.getElementById('modal-img').src=img;document.getElementById('productModal').classList.remove('hidden');document.getElementById('productModal').classList.add('flex');}
-    function closeProductModal(){document.getElementById('productModal').classList.add('hidden');}
-
-    document.addEventListener('DOMContentLoaded', renderCart);
+document.getElementById('chat-input').addEventListener('keydown', function(e){
+    if(e.key === 'Enter'){
+        document.getElementById('send-btn').click();
+        e.preventDefault();
+    }
+});
 </script>
 
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

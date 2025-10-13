@@ -9,19 +9,15 @@ class Order extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['items','total','status','user_id'];
+    protected $fillable = ['user_id','total','status','payment_method'];
 
-    protected $casts = [
-        'items' => 'array'
-    ];
-
-    // nếu cần liên kết user
-    public function user()
-    {
-        return $this->belongsTo(\App\Models\User::class);
+    public function items(){
+        return $this->hasMany(OrderItem::class);
     }
+
+    public function user(){
+        return $this->belongsTo(User::class);
+    }
+
+    
 }
-
-
-
-

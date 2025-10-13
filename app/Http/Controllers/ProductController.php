@@ -46,4 +46,14 @@ class ProductController extends Controller
         $orders = Order::orderBy('created_at','desc')->get();
         return view('orders.history', compact('orders'));
     }
+
+
+    // review san pham
+    public function show($id)
+{
+    $product = Product::with('reviews.user')->findOrFail($id);
+    $purchaseCount = $product->orders()->count();
+    return view('products.show', compact('product', 'purchaseCount'));
+}
+
 }
