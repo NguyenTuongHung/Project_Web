@@ -14,7 +14,7 @@ class OrderController extends Controller
     public function index()
     {
         $orders = Order::with('user')->latest()->get();
-        return view('admin.orders', compact('orders'));
+        return view('admin.orders.index', compact('orders'));
     }
 
     /**
@@ -22,12 +22,12 @@ class OrderController extends Controller
      */
     public function show($id)
     {
-        $order = Order::with(['user','items.product'])->findOrFail($id);
+        $order = Order::with(['user', 'items.product'])->findOrFail($id);
         return view('admin.orders.show', compact('order'));
     }
 
     /**
-     * Cập nhật trạng thái đơn hàng
+     * Cập nhật trạng thái đơn hàng (chỉ admin)
      */
     public function updateStatus(Request $request, $id)
     {
@@ -39,7 +39,8 @@ class OrderController extends Controller
         $order->status = $request->status;
         $order->save();
 
-        return redirect()->route('admin.orders')->with('success', 'Cập nhật trạng thái đơn hàng thành công!');
+        return redirect()->route('admin.orders.index')->with('success', 'Cập nhật trạng thái đơn hàng thành công!');
     }
 }
+
 

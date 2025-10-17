@@ -13,7 +13,7 @@ class ProductSeeder extends Seeder
             [
                 'name' => 'Ghế Sofa Cao Cấp',
                 'desc' => 'Ghế sofa da thật nhập khẩu, thiết kế hiện đại',
-                'img' => 'images/ghe-sofa.jpg',
+                'img' => '/images/ghe-sofa.jpg',
                 'price' => 15000000,
                 'sale_price' => 12000000,
                 'is_sale' => true,
@@ -21,7 +21,7 @@ class ProductSeeder extends Seeder
             [
                 'name' => 'Bàn Trà Gỗ Tự Nhiên',
                 'desc' => 'Bàn trà phòng khách gỗ sồi bền đẹp',
-                'img' => 'images/ban-tra.webp',
+                'img' => '/images/ban-tra.webp',
                 'price' => 3500000,
                 'sale_price' => null,
                 'is_sale' => false,
@@ -29,7 +29,7 @@ class ProductSeeder extends Seeder
             [
                 'name' => 'Giường Ngủ Hiện Đại',
                 'desc' => 'Giường ngủ hiện đại, sang trọng, bảo hành 5 năm',
-                'img' => 'images/giuongngu.avif',
+                'img' => '/images/giuongngu.avif',
                 'price' => 12000000,
                 'sale_price' => 9900000,
                 'is_sale' => true,
@@ -37,7 +37,7 @@ class ProductSeeder extends Seeder
             [
                 'name' => 'Tủ Quần Áo Thông Minh',
                 'desc' => 'Tủ gỗ công nghiệp cao cấp, chống ẩm mốc',
-                'img' => 'images/tuquanao.jpg',
+                'img' => '/images/tuquanao.jpg',
                 'price' => 8500000,
                 'sale_price' => 7500000,
                 'is_sale' => true,
@@ -45,7 +45,7 @@ class ProductSeeder extends Seeder
             [
                 'name' => 'Bàn Làm Việc Đơn Giản',
                 'desc' => 'Bàn gỗ công nghiệp, phong cách tối giản, tiết kiệm không gian',
-                'img' => 'images/banlamviec.webp',
+                'img' => '/images/banlamviec.webp',
                 'price' => 2000000,
                 'sale_price' => null,
                 'is_sale' => false,
@@ -53,7 +53,7 @@ class ProductSeeder extends Seeder
             [
                 'name' => 'Kệ Sách Đa Năng',
                 'desc' => 'Kệ sách 5 tầng bằng gỗ cao cấp',
-                'img' => 'images/kesach.webp',
+                'img' => '/images/kesach.webp',
                 'price' => 1800000,
                 'sale_price' => 1500000,
                 'is_sale' => true,
@@ -61,7 +61,7 @@ class ProductSeeder extends Seeder
             [
                 'name' => 'Đèn Trang Trí',
                 'desc' => 'Đèn treo trần phong cách châu Âu',
-                'img' => 'images/den_trangtri.jpg',
+                'img' => '/images/den_trangtri.jpg',
                 'price' => 2500000,
                 'sale_price' => null,
                 'is_sale' => false,
@@ -69,7 +69,7 @@ class ProductSeeder extends Seeder
             [
                 'name' => 'Thảm Lông Cao Cấp',
                 'desc' => 'Thảm trải sàn cao cấp nhập khẩu',
-                'img' => 'images/thamlong.jpg',
+                'img' => '/images/thamlong.jpg',
                 'price' => 3200000,
                 'sale_price' => 2500000,
                 'is_sale' => true,
@@ -77,7 +77,7 @@ class ProductSeeder extends Seeder
             [
                 'name' => 'Tủ Giày Thông Minh',
                 'desc' => 'Tủ giày gỗ đa năng, tiết kiệm diện tích',
-                'img' => 'images/tugiay.jpg',
+                'img' => '/images/tugiay.jpg',
                 'price' => 2700000,
                 'sale_price' => null,
                 'is_sale' => false,
@@ -85,7 +85,7 @@ class ProductSeeder extends Seeder
             [
                 'name' => 'Gương Treo Tường',
                 'desc' => 'Gương nghệ thuật trang trí phòng khách',
-                'img' => 'images/guongtreotuong.webp',
+                'img' => '/images/guongtreotuong.webp',
                 'price' => 2200000,
                 'sale_price' => 1900000,
                 'is_sale' => true,

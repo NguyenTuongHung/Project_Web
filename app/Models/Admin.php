@@ -9,6 +9,9 @@ class Admin extends Authenticatable
 {
     use Notifiable;
 
+    // 🟢 Khai báo guard admin
+    protected $guard = 'admin';
+
     protected $table = 'admins';
 
     protected $fillable = [
@@ -22,6 +25,7 @@ class Admin extends Authenticatable
         'remember_token',
     ];
 }
+
 
 
 

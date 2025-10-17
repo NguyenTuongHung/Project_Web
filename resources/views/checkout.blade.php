@@ -6,7 +6,6 @@
 <title>Thanh toán - Nội Thất Xanh</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
-/* animation cho card giỏ hàng */
 @keyframes fadeInUp {
   0% { opacity: 0; transform: translateY(20px); }
   100% { opacity: 1; transform: translateY(0); }
@@ -24,7 +23,6 @@
 </header>
 
 <main class="container mx-auto px-6 py-10">
-
   <h2 class="text-3xl font-bold text-green-900 mb-6 text-center">Giỏ hàng của bạn</h2>
 
   <div id="cart-items" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
@@ -47,12 +45,11 @@
 
     <div id="payment-info" class="mt-4 p-4 rounded shadow text-white hidden"></div>
   </div>
-
 </main>
 
 <script>
-function getCart(){return JSON.parse(localStorage.getItem('cart')||'[]');}
-function saveCart(cart){localStorage.setItem('cart',JSON.stringify(cart));renderCart();}
+function getCart(){ return JSON.parse(localStorage.getItem('cart')||'[]'); }
+function saveCart(cart){ localStorage.setItem('cart', JSON.stringify(cart)); renderCart(); }
 
 function renderCart(){
   let cart=getCart();
@@ -62,8 +59,7 @@ function renderCart(){
     document.getElementById('cart-total').innerText='0đ';
     return;
   }
-  let html='';
-  let total=0;
+  let html=''; let total=0;
   cart.forEach((it,idx)=>{
     total+=it.price*it.quantity;
     html+=`
@@ -145,10 +141,13 @@ document.getElementById('checkout-btn').addEventListener('click',function(){
 
   infoBox.classList.remove('hidden');
 
-  // gửi đơn hàng
+  // gửi đơn hàng lên server
   fetch("{{ route('checkout') }}",{
     method:'POST',
-    headers:{'Content-Type':'application/json','X-CSRF-TOKEN':'{{ csrf_token() }}'},
+    headers:{
+      'Content-Type':'application/json',
+      'X-CSRF-TOKEN':'{{ csrf_token() }}'
+    },
     body:JSON.stringify({cart,payment_method:method})
   })
   .then(res=>res.json())
@@ -157,7 +156,6 @@ document.getElementById('checkout-btn').addEventListener('click',function(){
       alert('Đặt hàng thành công (Mã: '+data.order_id+')');
       localStorage.removeItem('cart');
       renderCart();
-      // chuyển sang trang thanh toán chi tiết (nếu có link)
       if(data.redirect) window.location.href=data.redirect;
     } else { alert(data.error||'Có lỗi xảy ra'); }
   })
@@ -169,6 +167,7 @@ document.addEventListener('DOMContentLoaded',renderCart);
 
 </body>
 </html>
+
 
 
 
