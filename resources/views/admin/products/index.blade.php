@@ -37,11 +37,16 @@
                     <img src="{{ asset($p->img) }}" class="w-full h-40 object-cover rounded mb-3" alt="{{ $p->name }}">
                     <h3 class="text-xl font-semibold text-green-800 mb-1">{{ $p->name }}</h3>
                     <p class="text-gray-600 mb-2">{{ Str::limit($p->desc, 80) }}</p>
-                    <p class="font-bold text-red-600">{{ $p->is_sale && $p->sale_price ? number_format($p->sale_price) : number_format($p->price) }}đ</p>
+                    <p class="font-bold text-red-600">
+                        {{ $p->is_sale && $p->sale_price ? number_format($p->sale_price) : number_format($p->price) }}đ
+                    </p>
                     <div class="mt-3 flex gap-2">
                         <button onclick="openEditModal({{ $p->id }}, '{{ addslashes($p->name) }}', '{{ addslashes($p->desc) }}', {{ $p->price }}, {{ $p->sale_price ?? 0 }}, {{ $p->is_sale ? 1 : 0 }}, '{{ $p->img }}')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded">✏️ Sửa</button>
-                        <form action="{{ route('admin.products.delete', $p->id) }}" method="POST">
-                            @csrf @method('DELETE')
+                        
+                        <!-- Sửa tên route tại đây -->
+                        <form action="{{ route('admin.products.destroy', $p->id) }}" method="POST" onsubmit="return confirm('Bạn có chắc muốn xóa sản phẩm này không?')">
+                            @csrf
+                            @method('DELETE')
                             <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded">🗑️ Xóa</button>
                         </form>
                     </div>
@@ -78,7 +83,7 @@
                 <label>Kích hoạt sale</label>
             </div>
             <div class="mb-4">
-                <label class="block font-semibold">Ảnh (url)</label>
+                <label class="block font-semibold">Ảnh (URL)</label>
                 <input type="text" name="img" class="w-full border px-3 py-2 rounded">
             </div>
             <div class="flex justify-end gap-2">
