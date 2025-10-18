@@ -43,7 +43,7 @@
 
         <!-- Cột ảnh (nhỏ hơn, 1/3) -->
         <div class="hidden md:flex w-1/3 bg-green-50 items-center justify-center p-4">
-            <img src="{{ asset('images/anhtoi.jpg') }}" 
+            <img src="{{ asset('images/admin.jpg') }}" 
                  alt="Admin Login" 
                  class="max-h-72 rounded-lg shadow">
         </div>
