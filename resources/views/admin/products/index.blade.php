@@ -41,9 +41,8 @@
                         {{ $p->is_sale && $p->sale_price ? number_format($p->sale_price) : number_format($p->price) }}đ
                     </p>
                     <div class="mt-3 flex gap-2">
-                        <button onclick="openEditModal({{ $p->id }}, '{{ addslashes($p->name) }}', '{{ addslashes($p->desc) }}', {{ $p->price }}, {{ $p->sale_price ?? 0 }}, {{ $p->is_sale ? 1 : 0 }}, '{{ $p->img }}')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded">✏️ Sửa</button>
-                        
-                        <!-- Sửa tên route tại đây -->
+                        <button onclick="openEditModal({{ $p->id }}, '{{ addslashes($p->name) }}', `{{ addslashes($p->desc) }}`, {{ $p->price }}, {{ $p->sale_price ?? 0 }}, {{ $p->is_sale ? 1 : 0 }})" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded">✏️ Sửa</button>
+
                         <form action="{{ route('admin.products.destroy', $p->id) }}" method="POST" onsubmit="return confirm('Bạn có chắc muốn xóa sản phẩm này không?')">
                             @csrf
                             @method('DELETE')
@@ -64,15 +63,15 @@
             @csrf
             <div class="mb-2">
                 <label class="block font-semibold">Tên sản phẩm</label>
-                <input type="text" name="name" class="w-full border px-3 py-2 rounded">
+                <input type="text" name="name" class="w-full border px-3 py-2 rounded" required>
             </div>
             <div class="mb-2">
                 <label class="block font-semibold">Mô tả</label>
-                <textarea name="desc" class="w-full border px-3 py-2 rounded"></textarea>
+                <textarea name="desc" class="w-full border px-3 py-2 rounded" required></textarea>
             </div>
             <div class="mb-2">
                 <label class="block font-semibold">Giá</label>
-                <input type="number" name="price" class="w-full border px-3 py-2 rounded">
+                <input type="number" name="price" class="w-full border px-3 py-2 rounded" required>
             </div>
             <div class="mb-2">
                 <label class="block font-semibold">Giá sale</label>
@@ -82,10 +81,12 @@
                 <input type="checkbox" name="is_sale" value="1">
                 <label>Kích hoạt sale</label>
             </div>
+
             <div class="mb-4">
-                <label class="block font-semibold">Ảnh (URL)</label>
-                <input type="text" name="img" class="w-full border px-3 py-2 rounded">
+                <label class="block font-semibold">Ảnh sản phẩm</label>
+                <input type="file" name="img" class="w-full border px-3 py-2 rounded">
             </div>
+
             <div class="flex justify-end gap-2">
                 <button type="button" onclick="closeProductModal()" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded">Đóng</button>
                 <button type="submit" class="bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded">Lưu</button>
@@ -105,10 +106,12 @@ function openAddModal(){
     document.getElementById('productModal').classList.add('flex');
 }
 
-function openEditModal(id,name,desc,price,sale_price,is_sale,img){
+function openEditModal(id,name,desc,price,sale_price,is_sale){
     document.getElementById('modal-title').innerText='Sửa sản phẩm';
     const form = document.getElementById('productForm');
-    form.action="/admin/products/"+id;
+    form.action="{{ url('admin/products') }}/"+id;
+
+    // Thêm input _method nếu chưa có
     let methodInput = form.querySelector('[name="_method"]');
     if(!methodInput){
         methodInput=document.createElement('input');
@@ -117,12 +120,13 @@ function openEditModal(id,name,desc,price,sale_price,is_sale,img){
         methodInput.value='PUT';
         form.appendChild(methodInput);
     }
+
     form.querySelector('[name="name"]').value=name;
     form.querySelector('[name="desc"]').value=desc;
     form.querySelector('[name="price"]').value=price;
     form.querySelector('[name="sale_price"]').value=sale_price;
     form.querySelector('[name="is_sale"]').checked=!!is_sale;
-    form.querySelector('[name="img"]').value=img;
+
     document.getElementById('productModal').classList.remove('hidden');
     document.getElementById('productModal').classList.add('flex');
 }
@@ -132,3 +136,7 @@ function closeProductModal(){
 }
 </script>
 @endsection
+
+
+
+
